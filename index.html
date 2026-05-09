@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -910,11 +909,15 @@
 </style>
 ```
 
+=======
+    <link rel="stylesheet" href="css/style.css">
+>>>>>>> 7a0047a (refactor: modularize portfolio site and add static blog architecture)
 </head>
 <body>
     <canvas id="starfield"></canvas>
     <div class="nebula-layer"></div>
 
+<<<<<<< HEAD
 ```
 <div class="content-wrapper">
     <nav>
@@ -1440,5 +1443,371 @@
 </script>
 ```
 
+=======
+    <div class="content-wrapper">
+        <nav>
+            <a href="index.html" class="logo">MAH</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+                <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+                <li><a href="blog.html" class="nav-link">Blog</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+
+        <!-- HERO -->
+        <section class="hero" id="home">
+            <div class="hero-inner">
+                <div class="hero-text">
+                    <p class="hero-label">AI/ML Engineer based in Nigeria</p>
+                    <h1 class="hero-name">
+                        <span class="line1">Mohammed</span>
+                        <span class="line2">Ahmed Hassan</span>
+                    </h1>
+                    <p class="hero-roles">
+                        <span>MLOps</span> &nbsp;/&nbsp; Deep Learning &nbsp;/&nbsp; <span>LLM Systems</span> &nbsp;/&nbsp; Edge AI
+                    </p>
+                    <p class="hero-desc">
+                        Building production-ready intelligent systems that bridge the gap between experimentation and real-world deployment. End-to-end AI from data to infrastructure.
+                    </p>
+                    <div class="hero-btns">
+                        <a href="#projects" class="btn btn-primary">View Projects</a>
+                        <a href="#contact" class="btn btn-ghost">Get In Touch</a>
+                    </div>
+                </div>
+                <div class="hero-photo-wrap">
+                    <div class="orbit-dot"></div>
+                    <div class="orbit-dot"></div>
+                    <img src="assets/images/profile-photo.jpeg" alt="Mohammed Ahmed Hassan" class="hero-photo" />
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section id="about">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Who I am</span>
+                <h2 class="section-title">About <span>Me</span></h2>
+            </div>
+            <div class="glass about-body reveal">
+                I'm Mohammed Ahmed Hassan, an AI/ML Engineer with a focus on building
+                <span class="highlight">production-ready intelligent systems</span>. My work blends deep learning,
+                backend engineering, and MLOps — taking ideas from research all the way to real-world deployment.
+                <br><br>
+                I specialize in <span class="highlight">LLM-powered applications</span>,
+                <span class="highlight-purple">Retrieval-Augmented Generation (RAG)</span>, and
+                <span class="highlight-teal">AI agents</span>, along with
+                <span class="highlight">edge and offline-first AI</span> solutions designed for environments
+                with limited connectivity. My systems span medical AI, autonomous data analysis, and cybersecurity.
+                <br><br>
+                My approach is systems-oriented. I don't just train models — I build complete AI products across
+                data pipelines, model training, inference optimization, and infrastructure. Currently building
+                <span class="highlight-purple">MiraiQ</span>, a startup focused on intelligent automation and edge AI.
+            </div>
+        </section>
+
+        <!-- SKILLS -->
+        <section id="skills">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">What I work with</span>
+                <h2 class="section-title">Technical <span>Arsenal</span></h2>
+            </div>
+            <div class="skills-grid">
+                <div class="glass skill-card reveal">
+                    <span class="skill-icon" style="color: var(--nebula-blue)"><i class="fas fa-brain"></i></span>
+                    <h3>Deep Learning & AI</h3>
+                    <p>Neural networks, computer vision, NLP, and advanced ML algorithms for production systems.</p>
+                    <div class="tags">
+                        <span class="tag">PyTorch</span>
+                        <span class="tag">TensorFlow</span>
+                        <span class="tag">CNNs</span>
+                        <span class="tag">Transformers</span>
+                    </div>
+                </div>
+                <div class="glass skill-card reveal">
+                    <span class="skill-icon" style="color: var(--nebula-purple)"><i class="fas fa-robot"></i></span>
+                    <h3>LLM & RAG Systems</h3>
+                    <p>Intelligent agents, retrieval-augmented pipelines, and tool-using language model applications.</p>
+                    <div class="tags">
+                        <span class="tag purple">LangChain</span>
+                        <span class="tag purple">LangGraph</span>
+                        <span class="tag purple">LlamaIndex</span>
+                        <span class="tag purple">Vector DBs</span>
+                    </div>
+                </div>
+                <div class="glass skill-card reveal">
+                    <span class="skill-icon" style="color: var(--nebula-teal)"><i class="fas fa-server"></i></span>
+                    <h3>Backend Engineering</h3>
+                    <p>Production-grade APIs, scalable backend services, and async Python systems.</p>
+                    <div class="tags">
+                        <span class="tag teal">FastAPI</span>
+                        <span class="tag teal">Django</span>
+                        <span class="tag teal">Python</span>
+                        <span class="tag teal">REST APIs</span>
+                    </div>
+                </div>
+                <div class="glass skill-card reveal">
+                    <span class="skill-icon" style="color: var(--nebula-pink)"><i class="fas fa-rocket"></i></span>
+                    <h3>MLOps & Deployment</h3>
+                    <p>Model deployment, monitoring pipelines, CI/CD, and cloud infrastructure management.</p>
+                    <div class="tags">
+                        <span class="tag pink">Docker</span>
+                        <span class="tag pink">MLflow</span>
+                        <span class="tag pink">CI/CD</span>
+                        <span class="tag pink">Cloud Deploy</span>
+                    </div>
+                </div>
+                <div class="glass skill-card reveal">
+                    <span class="skill-icon" style="color: var(--nebula-blue)"><i class="fas fa-chart-bar"></i></span>
+                    <h3>Data Science</h3>
+                    <p>End-to-end data analysis, visualization, feature engineering, and statistical modeling.</p>
+                    <div class="tags">
+                        <span class="tag">Pandas</span>
+                        <span class="tag">NumPy</span>
+                        <span class="tag">Scikit-learn</span>
+                        <span class="tag">EDA</span>
+                    </div>
+                </div>
+                <div class="glass skill-card reveal">
+                    <span class="skill-icon" style="color: var(--nebula-teal)"><i class="fas fa-desktop"></i></span>
+                    <h3>Frontend & UI</h3>
+                    <p>Building interactive interfaces for AI applications and intelligent web experiences.</p>
+                    <div class="tags">
+                        <span class="tag teal">React</span>
+                        <span class="tag teal">Streamlit</span>
+                        <span class="tag teal">Gradio</span>
+                        <span class="tag teal">HTML/CSS</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS -->
+        <section id="projects">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">What I've built</span>
+                <h2 class="section-title">Featured <span>Projects</span></h2>
+            </div>
+            <div class="projects-grid">
+
+                <!-- MiraiQ Featured -->
+                <div class="glass featured-card reveal">
+                    <div>
+                        <div class="featured-label">
+                            <div class="pulse-dot"></div>
+                            Currently Building
+                        </div>
+                        <h3>MiraiQ</h3>
+                        <p>An AI platform focused on intelligent automation and edge AI solutions. Building production-ready LLM integration, RAG architectures, and edge-first AI systems that work in low-connectivity environments.</p>
+                        <div class="tags" style="margin-bottom: 0;">
+                            <span class="tag pink">LLMs</span>
+                            <span class="tag pink">Edge AI</span>
+                            <span class="tag pink">RAG</span>
+                            <span class="tag pink">AI Agents</span>
+                            <span class="tag pink">MLOps</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; padding: 1rem 0;">
+                        <div style="font-size: 4rem; opacity: 0.15; font-family: 'Syne', sans-serif; font-weight: 800; color: var(--nebula-pink); white-space: nowrap;">COMING<br>SOON</div>
+                    </div>
+                </div>
+
+                <!-- NOVAR -->
+                <div class="glass project-card reveal">
+                    <div class="project-top">
+                        <span class="project-badge purple">RAG System / NLP</span>
+                        <h3>Novar</h3>
+                        <p>A lightweight RAG application inspired by NotebookLM. Users upload documents (PDF, EPUB, TXT, DOCX), and the system retrieves semantically relevant chunks to generate grounded, source-traceable answers. Features streaming SSE responses and session-based document management.</p>
+                        <div class="tags">
+                            <span class="tag purple">FastAPI</span>
+                            <span class="tag purple">LangChain</span>
+                            <span class="tag purple">ChromaDB</span>
+                            <span class="tag purple">Gemini</span>
+                            <span class="tag purple">React</span>
+                            <span class="tag purple">Vite</span>
+                        </div>
+                    </div>
+                    <div class="project-bottom">
+                        <a href="https://github.com/MohammedAH10/Novar-Network-of-Vecrtorized-Archive-Retrieval" target="_blank" class="proj-link github"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://novar-ui.onrender.com" target="_blank" class="proj-link demo"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+
+                <!-- Brain MRI -->
+                <div class="glass project-card reveal">
+                    <div class="project-top">
+                        <span class="project-badge">Medical AI / Deep Learning</span>
+                        <h3>NeuroScope AI</h3>
+                        <p>AI-powered brain MRI analysis system for automated detection and classification of brain abnormalities using deep learning and computer vision techniques.</p>
+                        <div class="tags">
+                            <span class="tag">TensorFlow</span>
+                            <span class="tag">CNNs</span>
+                            <span class="tag">MONAI</span>
+                            <span class="tag">Flask</span>
+                            <span class="tag">OpenCV</span>
+                        </div>
+                    </div>
+                    <div class="project-bottom">
+                        <a href="https://github.com/MohammedAH10/MyFinalYearProject" target="_blank" class="proj-link github"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://huggingface.co/spaces/MohammedAH/NeuroScope-AI" target="_blank" class="proj-link demo"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+
+                <!-- Breast Cancer -->
+                <div class="glass project-card reveal">
+                    <div class="project-top">
+                        <span class="project-badge teal">Healthcare ML / Classification</span>
+                        <h3>Breast Cancer Prognosis</h3>
+                        <p>Multimodal ML system for breast cancer prognosis combining CNNs for pathology image classification with a DNN using Cox proportional hazards loss for survival prediction.</p>
+                        <div class="tags">
+                            <span class="tag teal">ResNet50</span>
+                            <span class="tag teal">TensorFlow</span>
+                            <span class="tag teal">Scikit-learn</span>
+                            <span class="tag teal">Keras</span>
+                        </div>
+                    </div>
+                    <div class="project-bottom">
+                        <a href="https://github.com/MohammedAH10/BreastCancerPrognosis" target="_blank" class="proj-link github"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://breastcancerprognosis-1.onrender.com" target="_blank" class="proj-link demo"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+
+                <!-- EDA Agent -->
+                <div class="glass project-card reveal">
+                    <div class="project-top">
+                        <span class="project-badge purple">AI Agents / Data Science</span>
+                        <h3>EDA Agent</h3>
+                        <p>Autonomous AI agent for exploratory data analysis. Automates insight generation, visualization, and model selection for tabular datasets using LLM-guided decision making.</p>
+                        <div class="tags">
+                            <span class="tag purple">FastAPI</span>
+                            <span class="tag purple">Mistral</span>
+                            <span class="tag purple">Groq</span>
+                            <span class="tag purple">XGBoost</span>
+                            <span class="tag purple">Docker</span>
+                        </div>
+                    </div>
+                    <div class="project-bottom">
+                        <a href="https://github.com/MohammedAH10/ExploratoryDataAnalysis-Agent" target="_blank" class="proj-link github"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://exploratorydataanalysis-agent.onrender.com" target="_blank" class="proj-link demo"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+
+                <!-- IoT Intrusion -->
+                <div class="glass project-card reveal">
+                    <div class="project-top">
+                        <span class="project-badge teal">Federated Learning / Security</span>
+                        <h3>IoT Intrusion Detection</h3>
+                        <p>Federated Learning system for anomaly detection in IoT environments. Detects and classifies 14 types of cyber attacks on IoT networks without centralizing raw data.</p>
+                        <div class="tags">
+                            <span class="tag teal">TensorFlow</span>
+                            <span class="tag teal">Federated Learning</span>
+                            <span class="tag teal">Streamlit</span>
+                            <span class="tag teal">Scikit-learn</span>
+                        </div>
+                    </div>
+                    <div class="project-bottom">
+                        <a href="https://huggingface.co/spaces/MohammedAH/Intrusion-Detection/tree/main" target="_blank" class="proj-link github"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://huggingface.co/spaces/MohammedAH/Intrusion-Detection" target="_blank" class="proj-link demo"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+
+                <!-- Pose Estimation -->
+                <div class="glass project-card reveal">
+                    <div class="project-top">
+                        <span class="project-badge">Computer Vision / Real-time AI</span>
+                        <h3>Pose Estimation & Object Detection</h3>
+                        <p>Real-time pose estimation and multi-object detection system using YOLOv8, enabling accurate human pose tracking directly in the browser via Transformers.js.</p>
+                        <div class="tags">
+                            <span class="tag">YOLO</span>
+                            <span class="tag">OpenCV</span>
+                            <span class="tag">Transformers.js</span>
+                            <span class="tag">HTML/CSS</span>
+                        </div>
+                    </div>
+                    <div class="project-bottom">
+                        <a href="https://huggingface.co/spaces/MohammedAH/Yolov-26/tree/main" target="_blank" class="proj-link github"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="https://huggingface.co/spaces/MohammedAH/Yolov-26" target="_blank" class="proj-link demo"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Let's connect</span>
+                <h2 class="section-title">Get In <span>Touch</span></h2>
+            </div>
+            <div class="contact-grid">
+                <div class="glass contact-left reveal">
+                    <h3>Let's build something together</h3>
+                    <p>I'm open to discussing AI/ML projects, collaborations, research opportunities, or just talking about intelligent systems. Feel free to reach out through any channel.</p>
+
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="info">
+                            <p>Email</p>
+                            <a href="mailto:kaninpino1000@gmail.com">kaninpino1000@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+                        <div class="info">
+                            <p>WhatsApp</p>
+                            <a href="https://wa.me/2349056807640" target="_blank">+234-9056807640</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info">
+                            <p>Location</p>
+                            <span>Gombe, Nigeria</span>
+                        </div>
+                    </div>
+
+                    <div class="socials">
+                        <a href="https://linkedin.com/in/mohammed-ahmed-hassan" target="_blank" class="social-btn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://github.com/MohammedAH10" target="_blank" class="social-btn" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="https://x.com/MohammedAH70" target="_blank" class="social-btn" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://huggingface.co/MohammedAH" target="_blank" class="social-btn" title="HuggingFace"><i class="fas fa-robot"></i></a>
+                        <a href="https://www.instagram.com/moh_amir10" target="_blank" class="social-btn" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="glass contact-form reveal">
+                    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" placeholder="Tell me about your project or idea..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>2026 Mohammed Ahmed Hassan &mdash; Built with <span>code</span> &amp; <span>curiosity</span></p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+>>>>>>> 7a0047a (refactor: modularize portfolio site and add static blog architecture)
 </body>
 </html>

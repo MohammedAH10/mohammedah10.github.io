@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Production RAG Systems | Mohammed Ahmed Hassan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="nebula-layer"></div>
+
+    <div class="content-wrapper">
+        <nav>
+            <a href="../index.html" class="logo">MAH</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="../index.html#about" class="nav-link">About</a></li>
+                <li><a href="../index.html#skills" class="nav-link">Skills</a></li>
+                <li><a href="../index.html#projects" class="nav-link">Projects</a></li>
+                <li><a href="../blog.html" class="nav-link">Blog</a></li>
+                <li><a href="../index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+
+        <article class="post-layout">
+
+            <!-- POST HEADER -->
+            <header class="post-header">
+                <div class="post-meta">
+                    <span class="post-category tag purple">LLMs & RAG</span>
+                    <span class="post-date">May 2026</span>
+                    <span class="post-read-time">8 min read</span>
+                </div>
+                <h1>Building Production RAG Systems: Lessons from NOVAR</h1>
+                <p class="post-summary">
+                    After shipping NOVAR, a document RAG system backed by FastAPI, ChromaDB, and Gemini, there are real gaps between what the tutorials show you and what actually holds up under real usage. This is a writeup of the decisions that mattered.
+                </p>
+                <div class="post-divider"></div>
+            </header>
+
+            <!-- POST BODY -->
+            <div class="post-body reveal">
+
+                <p>
+                    Most RAG tutorials show you a pipeline that works on the happy path: a single clean PDF, one question, a correct answer. NOVAR had to handle multiple document formats, concurrent sessions, partial uploads, streaming responses, and users who ask follow-up questions expecting the system to remember the previous turn. The gap between the tutorial and those requirements is where the interesting engineering is.
+                </p>
+
+                <h2>Chunking is the most consequential decision you'll make</h2>
+
+                <p>
+                    Before you touch retrieval or generation, the way you split your documents determines the ceiling on answer quality. The default <code>RecursiveCharacterTextSplitter</code> with <code>chunk_size=1000</code> is a reasonable starting point but a poor ending point. Here is what actually mattered for NOVAR:
+                </p>
+
+                <ul>
+                    <li><strong>Chunk size interacts with your embedding model's context window.</strong> For <code>models/embedding-001</code> (the Gemini embedding model), staying under 512 tokens per chunk produces measurably better similarity scores. At 1000 characters you are often fine, but with dense technical content you can exceed that limit silently.</li>
+                    <li><strong>Overlap is load-bearing for multi-sentence answers.</strong> With zero overlap, a sentence that straddles a chunk boundary gets split and neither chunk has enough context. 150–200 character overlap recovers most of these cases.</li>
+                    <li><strong>Document type changes the right strategy entirely.</strong> For PDFs with clearly demarcated sections, splitting on headings outperforms character-based splitting. For continuous prose, character-based is fine. NOVAR detects whether the document has markdown-style headers after PyMuPDF extraction and picks the strategy accordingly.</li>
+                </ul>
+
+                <div class="callout info">
+                    <span class="callout-label">Note</span>
+                    Chunking decisions compound. A bad chunking strategy cannot be recovered by a better retriever. Fix chunking first before tuning anything downstream.
+                </div>
+
+                <h2>Retrieval: the case against vanilla top-k</h2>
+
+                <p>
+                    The standard approach is: embed the query, find the <em>k</em> nearest chunks by cosine similarity, pass them to the LLM. This works until it doesn't. The two failure modes NOVAR hit regularly:
+                </p>
+
+                <h3>Semantic similarity is not the same as relevance</h3>
+                <p>
+                    A user asking "what are the limitations of this method" gets chunks about limitations — but potentially from the wrong section. Embedding similarity pulls topically related content regardless of where it sits in the document's argumentative structure. Adding a lightweight BM25 re-rank step (sparse retrieval over the same chunks) and combining scores fixes most of these cases. The hybrid approach is two extra lines with LangChain's <code>EnsembleRetriever</code>.
+                </p>
+
+                <h3>k is context-dependent</h3>
+                <p>
+                    For a short factual question, 3 chunks is plenty and adding more increases hallucination risk because the LLM tries to reconcile irrelevant context. For a summarization request, 10 chunks is often too few. NOVAR classifies the query intent — factual lookup vs. synthesis — and sets <code>k</code> accordingly. The classifier is just a regex pattern match; nothing sophisticated required.
+                </p>
+
+                <pre><code>def get_k(query: str) -> int:
+    synthesis_patterns = [
+        r"\bsummar",
+        r"\boverall\b",
+        r"\bexplain\b.*\bin detail\b",
+        r"\bwhat does.*cover\b",
+    ]
+    for pattern in synthesis_patterns:
+        if re.search(pattern, query, re.IGNORECASE):
+            return 8
+    return 4</code></pre>
+
+                <h2>Streaming SSE responses</h2>
+
+                <p>
+                    Non-streaming RAG responses feel broken even when they aren't. A 3-second blank wait before text appears trains users to think something went wrong. Gemini's Python SDK supports streaming generation via <code>stream=True</code>, and FastAPI's <code>StreamingResponse</code> with <code>text/event-stream</code> makes the plumbing straightforward.
+                </p>
+
+                <p>The critical detail is error handling inside the generator:</p>
+
+                <pre><code>async def stream_answer(query: str, session_id: str):
+    retriever = get_retriever(session_id)
+    docs = retriever.invoke(query)
+    context = format_context(docs)
+    prompt = build_prompt(query, context)
+
+    try:
+        async for chunk in model.generate_content_async(
+            prompt, stream=True
+        ):
+            if chunk.text:
+                yield f"data: {json.dumps({'text': chunk.text})}\n\n"
+    except Exception as e:
+        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    finally:
+        yield "data: [DONE]\n\n"</code></pre>
+
+                <p>
+                    The <code>[DONE]</code> sentinel is important. Without it, the frontend has no reliable signal to stop the spinner on a partial response or a timeout.
+                </p>
+
+                <h2>Session isolation</h2>
+
+                <p>
+                    NOVAR uses ChromaDB with a collection-per-session model. Each session gets its own collection keyed by a UUID generated at document upload. The tradeoffs versus a single shared collection:
+                </p>
+
+                <ul>
+                    <li><strong>Pro:</strong> zero risk of cross-user document leakage, trivial to delete a session's data.</li>
+                    <li><strong>Con:</strong> ChromaDB's in-process mode does not scale past a single process. Fine for the current deployment on Render's free tier, not fine if you need horizontal scaling.</li>
+                    <li><strong>Con:</strong> cold session startup (embedding and indexing the documents) adds latency on first query. NOVAR moves indexing to the upload endpoint so the first query is fast.</li>
+                </ul>
+
+                <div class="callout warning">
+                    <span class="callout-label">Watch out</span>
+                    If you are using ChromaDB's in-process mode and Gunicorn with multiple workers, each worker gets its own ChromaDB instance. Sessions created in worker A are invisible to worker B. Either use ChromaDB's client-server mode, or pin sessions to workers with sticky routing. NOVAR uses a single-worker Uvicorn process to sidestep this entirely.
+                </div>
+
+                <h2>What to do next</h2>
+
+                <p>
+                    The pieces that remain incomplete in NOVAR are the ones that require persistent state beyond a session: conversation history that survives page reloads, cross-document search across multiple uploads in the same session, and citation rendering that links answers back to specific page numbers in the source document. Those are the next set of problems.
+                </p>
+
+                <p>
+                    The full source is on <a href="https://github.com/MohammedAH10/Novar-Network-of-Vecrtorized-Archive-Retrieval" target="_blank">GitHub</a>. The live demo runs on Render's free tier so expect a cold-start delay on first load.
+                </p>
+
+            </div>
+
+            <!-- POST FOOTER -->
+            <div class="post-footer reveal">
+                <div class="post-footer-tags">
+                    <h4>Tagged</h4>
+                    <div class="tags">
+                        <span class="tag purple">RAG</span>
+                        <span class="tag purple">FastAPI</span>
+                        <span class="tag purple">ChromaDB</span>
+                        <span class="tag purple">Gemini</span>
+                        <span class="tag purple">LangChain</span>
+                    </div>
+                </div>
+
+                <div class="post-nav">
+                    <a href="first-post.html" class="glass post-nav-link">
+                        <span><i class="fas fa-arrow-left"></i> Previous</span>
+                        <strong>Survival Prediction with Cox Loss in TensorFlow</strong>
+                    </a>
+                    <a href="mlops-notes.html" class="glass post-nav-link" style="text-align: right;">
+                        <span>Next <i class="fas fa-arrow-right"></i></span>
+                        <strong>MLOps Without the Overhead</strong>
+                    </a>
+                </div>
+
+                <a href="../blog.html" class="back-to-blog">
+                    <i class="fas fa-arrow-left"></i> Back to all posts
+                </a>
+            </div>
+
+        </article>
+
+        <footer>
+            <p>2026 Mohammed Ahmed Hassan &mdash; Built with <span>code</span> &amp; <span>curiosity</span></p>
+        </footer>
+    </div>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>

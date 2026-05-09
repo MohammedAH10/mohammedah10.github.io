@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Mohammed Ahmed Hassan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="nebula-layer"></div>
+
+    <div class="content-wrapper">
+        <nav>
+            <a href="index.html" class="logo">MAH</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="index.html#skills" class="nav-link">Skills</a></li>
+                <li><a href="index.html#projects" class="nav-link">Projects</a></li>
+                <li><a href="blog.html" class="nav-link">Blog</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+
+        <!-- BLOG HERO -->
+        <div class="blog-hero">
+            <div class="blog-hero-inner">
+                <div class="blog-hero-text">
+                    <span class="page-eyebrow">Thoughts & Notes</span>
+                    <h1>The <span>Blog</span></h1>
+                    <p>Writing on AI systems, MLOps, LLMs, edge deployment, and the occasional deep dive into what actually works in production.</p>
+                </div>
+                <div class="filter-bar" id="filterBar">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="mlops">MLOps</button>
+                    <button class="filter-btn" data-filter="llm">LLMs & RAG</button>
+                    <button class="filter-btn" data-filter="deeplearning">Deep Learning</button>
+                    <button class="filter-btn" data-filter="engineering">Engineering</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOG GRID -->
+        <div class="blog-grid">
+
+            <!-- Featured post -->
+            <a href="posts/building-rag-systems.html" class="glass post-card featured-post reveal" data-category="llm">
+                <div class="post-card-top">
+                    <div class="post-meta">
+                        <span class="post-category tag purple">LLMs & RAG</span>
+                        <span class="post-date">May 2026</span>
+                        <span class="post-read-time">8 min read</span>
+                    </div>
+                    <h2>Building Production RAG Systems: Lessons from NOVAR</h2>
+                    <p class="post-excerpt">
+                        After shipping NOVAR, a document RAG system backed by FastAPI, ChromaDB and Gemini, there are real gaps between what the tutorials show you and what actually holds up under real usage. This is a writeup of the decisions that mattered: chunking strategy, retrieval tuning, streaming SSE responses, and session isolation.
+                    </p>
+                </div>
+                <div class="post-card-bottom">
+                    <div class="post-tags">
+                        <span class="tag purple">RAG</span>
+                        <span class="tag purple">FastAPI</span>
+                        <span class="tag purple">ChromaDB</span>
+                    </div>
+                    <span class="read-more">Read <i class="fas fa-arrow-right"></i></span>
+                </div>
+                <div class="post-visual">
+                    <div class="post-visual-text">RAG</div>
+                </div>
+            </a>
+
+            <!-- Post 2 -->
+            <a href="posts/mlops-notes.html" class="glass post-card reveal" data-category="mlops">
+                <div class="post-card-top">
+                    <div class="post-meta">
+                        <span class="post-category tag teal">MLOps</span>
+                        <span class="post-date">Apr 2026</span>
+                        <span class="post-read-time">6 min read</span>
+                    </div>
+                    <h2>MLOps Without the Overhead: A Minimal Deployment Stack</h2>
+                    <p class="post-excerpt">
+                        Most MLOps content assumes you have a full platform team. This is about getting a model from notebook to monitored production endpoint as a solo engineer, using Docker, a small FastAPI wrapper, and GitHub Actions — nothing more.
+                    </p>
+                    <div class="tags" style="margin-top: auto; padding-top: 1rem;">
+                        <span class="tag teal">Docker</span>
+                        <span class="tag teal">CI/CD</span>
+                        <span class="tag teal">FastAPI</span>
+                    </div>
+                </div>
+                <div class="post-card-bottom">
+                    <div class="post-tags"></div>
+                    <span class="read-more">Read <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Post 3 -->
+            <a href="posts/building-mirai-q.html" class="glass post-card reveal" data-category="engineering">
+                <div class="post-card-top">
+                    <div class="post-meta">
+                        <span class="post-category tag pink">Engineering</span>
+                        <span class="post-date">Mar 2026</span>
+                        <span class="post-read-time">5 min read</span>
+                    </div>
+                    <h2>Why I'm Building MiraiQ and What Edge AI Actually Means</h2>
+                    <p class="post-excerpt">
+                        "Edge AI" gets used to mean everything from a quantized model on a Raspberry Pi to running inference in a browser. Here's what it means in the context of MiraiQ, the real constraints it imposes, and the architecture decisions that follow from them.
+                    </p>
+                    <div class="tags" style="margin-top: auto; padding-top: 1rem;">
+                        <span class="tag pink">Edge AI</span>
+                        <span class="tag pink">Startup</span>
+                        <span class="tag pink">Architecture</span>
+                    </div>
+                </div>
+                <div class="post-card-bottom">
+                    <div class="post-tags"></div>
+                    <span class="read-more">Read <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Post 4 -->
+            <a href="posts/first-post.html" class="glass post-card reveal" data-category="deeplearning">
+                <div class="post-card-top">
+                    <div class="post-meta">
+                        <span class="post-category tag">Deep Learning</span>
+                        <span class="post-date">Feb 2026</span>
+                        <span class="post-read-time">7 min read</span>
+                    </div>
+                    <h2>Survival Prediction with Cox Loss in TensorFlow: What the Papers Skip</h2>
+                    <p class="post-excerpt">
+                        Implementing the Cox proportional hazards loss in TensorFlow for the breast cancer survival prediction project exposed a few sharp edges — tied event times, how to handle censored samples in batched training, and numerical stability. Notes on how each was resolved.
+                    </p>
+                    <div class="tags" style="margin-top: auto; padding-top: 1rem;">
+                        <span class="tag">TensorFlow</span>
+                        <span class="tag">Medical AI</span>
+                        <span class="tag">Survival Analysis</span>
+                    </div>
+                </div>
+                <div class="post-card-bottom">
+                    <div class="post-tags"></div>
+                    <span class="read-more">Read <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+        </div>
+
+        <footer>
+            <p>2026 Mohammed Ahmed Hassan &mdash; Built with <span>code</span> &amp; <span>curiosity</span></p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
