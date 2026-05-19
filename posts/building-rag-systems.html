@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Building Production RAG Systems | Mohammed Ahmed Hassan</title>
+    <title>What Building a RAG App Taught Me About Embeddings, Infrastructure, and Reality | Mohammed Ahmed Hassan</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../css/style.css">
@@ -36,12 +36,12 @@
             <header class="post-header">
                 <div class="post-meta">
                     <span class="post-category tag purple">LLMs & RAG</span>
-                    <span class="post-date">May 2026</span>
-                    <span class="post-read-time">8 min read</span>
+                    <span class="post-date">May 19, 2026</span>
+                    <span class="post-read-time">10 min read</span>
                 </div>
-                <h1>Building Production RAG Systems: Lessons from NOVAR</h1>
+                <h1>What Building a RAG App Taught Me About Embeddings, Infrastructure, and Reality</h1>
                 <p class="post-summary">
-                    After shipping NOVAR, a document RAG system backed by FastAPI, ChromaDB, and Gemini, there are real gaps between what the tutorials show you and what actually holds up under real usage. This is a writeup of the decisions that mattered.
+                    Embedding infrastructure failures, self-hosting mistakes, and deployment realities from shipping NOVAR — a document RAG system backed by FastAPI, ChromaDB, and Gemini. The lessons you don't get from tutorials.
                 </p>
                 <div class="post-divider"></div>
             </header>
@@ -50,10 +50,46 @@
             <div class="post-body reveal">
 
                 <p>
-                    Most RAG tutorials show you a pipeline that works on the happy path: a single clean PDF, one question, a correct answer. NOVAR had to handle multiple document formats, concurrent sessions, partial uploads, streaming responses, and users who ask follow-up questions expecting the system to remember the previous turn. The gap between the tutorial and those requirements is where the interesting engineering is.
+                    When I first started building my RAG (Retrieval-Augmented Generation) application, I thought the hardest part would be the AI itself — the prompting, the retrieval logic, or maybe even the frontend experience.
                 </p>
 
-                <h2>Chunking is the most consequential decision you'll make</h2>
+                <p>
+                    I was wrong.
+                </p>
+
+                <p>
+                    The real battle started with embeddings. Like many developers getting into RAG systems, I underestimated how critical embedding infrastructure is. I focused heavily on the "generation" part of the app while assuming embedding would just work in the background. That assumption cost me time, deployments, debugging sessions, and a complete rethink of how I approach AI engineering.
+                </p>
+
+                <h2>The First Approach: Gemini Embeddings</h2>
+
+                <p>
+                    Initially, I used the embedding model from Google's Gemini ecosystem — it was easy to integrate and the quality looked promising during testing. Small documents embedded correctly. Queries returned relevant chunks. The retrieval pipeline worked.
+                </p>
+
+                <p>
+                    But once usage increased, things started breaking unpredictably. Sometimes embeddings would take too long. Sometimes requests failed entirely. Sometimes the model behaved inconsistently under load. Since RAG systems rely heavily on embeddings being consistently available, even small instability becomes a major architectural problem.
+                </p>
+
+                <p>
+                    That was my first real lesson: in RAG systems, embeddings are not a side component. They are the foundation of the entire retrieval pipeline. If embedding generation becomes unstable, the entire application becomes unstable.
+                </p>
+
+                <h2>The Second Attempt: Self-Hosting a Hugging Face Model</h2>
+
+                <p>
+                    After struggling with the Gemini embedding service, I decided to self-host using models from Hugging Face. The idea sounded great in theory — more control, better reliability, no API rate limits.
+                </p>
+
+                <p>
+                    But I made a major architectural mistake. Instead of preparing the model beforehand, I designed the service to download the embedding model during startup. That decision became a disaster on Render. The model was large, startup became extremely slow, and the container kept timing out before initialization completed. Every restart meant downloading the model again. Every deployment became painful. Cold starts became unacceptable.
+                </p>
+
+                <p>
+                    At that moment, I realized something important: AI infrastructure decisions matter just as much as AI model selection. A good model with poor deployment architecture becomes a bad production system.
+                </p>
+
+                <h2>Chunking Is the Most Consequential Decision You'll Make</h2>
 
                 <p>
                     Before you touch retrieval or generation, the way you split your documents determines the ceiling on answer quality. The default <code>RecursiveCharacterTextSplitter</code> with <code>chunk_size=1000</code> is a reasonable starting point but a poor ending point. Here is what actually mattered for NOVAR:
@@ -62,7 +98,7 @@
                 <ul>
                     <li><strong>Chunk size interacts with your embedding model's context window.</strong> For <code>models/embedding-001</code> (the Gemini embedding model), staying under 512 tokens per chunk produces measurably better similarity scores. At 1000 characters you are often fine, but with dense technical content you can exceed that limit silently.</li>
                     <li><strong>Overlap is load-bearing for multi-sentence answers.</strong> With zero overlap, a sentence that straddles a chunk boundary gets split and neither chunk has enough context. 150–200 character overlap recovers most of these cases.</li>
-                    <li><strong>Document type changes the right strategy entirely.</strong> For PDFs with clearly demarcated sections, splitting on headings outperforms character-based splitting. For continuous prose, character-based is fine. NOVAR detects whether the document has markdown-style headers after PyMuPDF extraction and picks the strategy accordingly.</li>
+                    <li><strong>Document type changes the right strategy entirely.</strong> For PDFs with clearly demarcated sections, splitting on headings outperforms character-based splitting. NOVAR detects whether the document has markdown-style headers after PyMuPDF extraction and picks the strategy accordingly.</li>
                 </ul>
 
                 <div class="callout info">
@@ -70,7 +106,7 @@
                     Chunking decisions compound. A bad chunking strategy cannot be recovered by a better retriever. Fix chunking first before tuning anything downstream.
                 </div>
 
-                <h2>Retrieval: the case against vanilla top-k</h2>
+                <h2>Retrieval: The Case Against Vanilla Top-<em>k</em></h2>
 
                 <p>
                     The standard approach is: embed the query, find the <em>k</em> nearest chunks by cosine similarity, pass them to the LLM. This works until it doesn't. The two failure modes NOVAR hit regularly:
@@ -78,12 +114,12 @@
 
                 <h3>Semantic similarity is not the same as relevance</h3>
                 <p>
-                    A user asking "what are the limitations of this method" gets chunks about limitations — but potentially from the wrong section. Embedding similarity pulls topically related content regardless of where it sits in the document's argumentative structure. Adding a lightweight BM25 re-rank step (sparse retrieval over the same chunks) and combining scores fixes most of these cases. The hybrid approach is two extra lines with LangChain's <code>EnsembleRetriever</code>.
+                    A user asking "what are the limitations of this method" gets chunks about limitations — but potentially from the wrong section. Adding a lightweight BM25 re-rank step (sparse retrieval over the same chunks) and combining scores fixes most of these cases. The hybrid approach is two extra lines with LangChain's <code>EnsembleRetriever</code>.
                 </p>
 
-                <h3>k is context-dependent</h3>
+                <h3><em>k</em> is context-dependent</h3>
                 <p>
-                    For a short factual question, 3 chunks is plenty and adding more increases hallucination risk because the LLM tries to reconcile irrelevant context. For a summarization request, 10 chunks is often too few. NOVAR classifies the query intent — factual lookup vs. synthesis — and sets <code>k</code> accordingly. The classifier is just a regex pattern match; nothing sophisticated required.
+                    For a short factual question, 3 chunks is plenty and adding more increases hallucination risk because the LLM tries to reconcile irrelevant context. For a summarization request, 10 chunks is often too few. NOVAR classifies the query intent — factual lookup vs. synthesis — and sets <code>k</code> accordingly:
                 </p>
 
                 <pre><code>def get_k(query: str) -> int:
@@ -98,7 +134,7 @@
             return 8
     return 4</code></pre>
 
-                <h2>Streaming SSE responses</h2>
+                <h2>Streaming SSE Responses</h2>
 
                 <p>
                     Non-streaming RAG responses feel broken even when they aren't. A 3-second blank wait before text appears trains users to think something went wrong. Gemini's Python SDK supports streaming generation via <code>stream=True</code>, and FastAPI's <code>StreamingResponse</code> with <code>text/event-stream</code> makes the plumbing straightforward.
@@ -127,7 +163,7 @@
                     The <code>[DONE]</code> sentinel is important. Without it, the frontend has no reliable signal to stop the spinner on a partial response or a timeout.
                 </p>
 
-                <h2>Session isolation</h2>
+                <h2>Session Isolation</h2>
 
                 <p>
                     NOVAR uses ChromaDB with a collection-per-session model. Each session gets its own collection keyed by a UUID generated at document upload. The tradeoffs versus a single shared collection:
@@ -135,19 +171,42 @@
 
                 <ul>
                     <li><strong>Pro:</strong> zero risk of cross-user document leakage, trivial to delete a session's data.</li>
-                    <li><strong>Con:</strong> ChromaDB's in-process mode does not scale past a single process. Fine for the current deployment on Render's free tier, not fine if you need horizontal scaling.</li>
-                    <li><strong>Con:</strong> cold session startup (embedding and indexing the documents) adds latency on first query. NOVAR moves indexing to the upload endpoint so the first query is fast.</li>
+                    <li><strong>Con:</strong> ChromaDB's in-process mode does not scale past a single process. Fine for Render's free tier, not fine if you need horizontal scaling.</li>
+                    <li><strong>Con:</strong> cold session startup adds latency on first query. NOVAR moves indexing to the upload endpoint so the first query is fast.</li>
                 </ul>
 
                 <div class="callout warning">
                     <span class="callout-label">Watch out</span>
-                    If you are using ChromaDB's in-process mode and Gunicorn with multiple workers, each worker gets its own ChromaDB instance. Sessions created in worker A are invisible to worker B. Either use ChromaDB's client-server mode, or pin sessions to workers with sticky routing. NOVAR uses a single-worker Uvicorn process to sidestep this entirely.
+                    If you are using ChromaDB's in-process mode and Gunicorn with multiple workers, each worker gets its own ChromaDB instance. Sessions created in worker A are invisible to worker B. NOVAR uses a single-worker Uvicorn process to sidestep this entirely.
                 </div>
 
-                <h2>What to do next</h2>
+                <h2>What I Learned About Hosting AI Systems</h2>
 
                 <p>
-                    The pieces that remain incomplete in NOVAR are the ones that require persistent state beyond a session: conversation history that survives page reloads, cross-document search across multiple uploads in the same session, and citation rendering that links answers back to specific page numbers in the source document. Those are the next set of problems.
+                    Traditional web applications and AI applications behave very differently in production. A normal Flask or Django app starts quickly, but AI systems introduce entirely different constraints: large model downloads, heavy RAM usage, long initialization times, GPU and CPU dependency issues, cold start problems, and serialization concerns. What works for a CRUD app may completely fail for an AI service. I learned that hosting AI workloads requires thinking more like an infrastructure engineer than just an application developer.
+                </p>
+
+                <h2>How I Would Approach a Similar Project Today</h2>
+
+                <p>
+                    If I were rebuilding the same RAG application today, my approach would be completely different:
+                </p>
+
+                <ul>
+                    <li><strong>Separate embedding from the main app.</strong> A dedicated embedding pipeline or microservice improves scalability, fault isolation, deployment flexibility, and caching strategies.</li>
+                    <li><strong>Preload models during build time.</strong> Never download models during runtime startup. Preload during the Docker build stage, cache model weights, and mount persistent storage.</li>
+                    <li><strong>Choose infrastructure based on the workload.</strong> Platforms optimized for lightweight web apps are not always ideal for model-heavy services. Evaluate startup timeout limits, persistent storage, GPU availability, and cold start behavior.</li>
+                    <li><strong>Use smaller or quantized embedding models.</strong> Production reliability matters more than theoretical benchmark superiority.</li>
+                    <li><strong>Build for failure from day one.</strong> Plan for retries, fallback providers, local caching, queue systems, and asynchronous processing.</li>
+                </ul>
+
+                <div class="callout info">
+                    <span class="callout-label">Lesson</span>
+                    AI engineering is not just about models. It is about systems design, infrastructure, reliability, deployment strategy, resource management, and operational thinking. The AI model is only one piece of the puzzle.
+                </div>
+
+                <p>
+                    Even though the embedding issues frustrated me, I am glad I experienced them early. Those failures forced me to understand the deeper engineering side of AI systems instead of only focusing on model integration. Now when I design AI applications, I think beyond "Does the model work?" — I think about whether it can scale, survive traffic spikes, recover from failures, deploy reliably, initialize fast enough, and operate within infrastructure limits.
                 </p>
 
                 <p>
@@ -162,10 +221,11 @@
                     <h4>Tagged</h4>
                     <div class="tags">
                         <span class="tag purple">RAG</span>
+                        <span class="tag purple">Embeddings</span>
+                        <span class="tag purple">Infrastructure</span>
                         <span class="tag purple">FastAPI</span>
                         <span class="tag purple">ChromaDB</span>
                         <span class="tag purple">Gemini</span>
-                        <span class="tag purple">LangChain</span>
                     </div>
                 </div>
 
